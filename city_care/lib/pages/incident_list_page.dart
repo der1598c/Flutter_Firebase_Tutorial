@@ -3,7 +3,9 @@ import 'package:city_care/pages/add_incidents_page.dart';
 import 'package:city_care/pages/login_page.dart';
 import 'package:city_care/pages/my_incidents_page.dart';
 import 'package:city_care/pages/register_page.dart';
+import 'package:city_care/view_models/register_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class IncidentListPage extends StatefulWidget {
   @override
@@ -26,7 +28,10 @@ class _IncidentListPage extends State<IncidentListPage> {
 
   void _navigateToRegisterPage(BuildContext context) async {
     Navigator.push(context, MaterialPageRoute(
-      builder: (context) => RegisterPage(), fullscreenDialog: true 
+      builder: (context) => ChangeNotifierProvider(
+        create: (context) => RegisterViewModel(),
+        child: RegisterPage(),
+      ), fullscreenDialog: true 
     ));
   }
 
