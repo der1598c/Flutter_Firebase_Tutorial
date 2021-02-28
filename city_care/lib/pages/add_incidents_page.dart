@@ -1,6 +1,10 @@
 import 'dart:io';
+import 'package:city_care/view_models/add_incident_view_model.dart';
+import 'package:city_care/view_models/incident_view_state.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 enum PhotoOptions { camera, library }
 
@@ -13,16 +17,27 @@ class _AddIncidentsPage extends State<AddIncidentsPage> {
   
   File _image;
   final _formKey = GlobalKey<FormState>();
+  AddIncidentViewModel _addIncidentVM;
 
   final _titleController = TextEditingController(); 
   final _descriptionController = TextEditingController(); 
 
   void _selectPhotoFromPhotoLibrary() async {
-    
+    final imagePicker = ImagePicker();
+    final pickedFile = await imagePicker.getImage(source: ImageSource.gallery);
+
+    setState(() {
+      _image = File(pickedFile.path);
+    });
   }
 
   void _selectPhotoFromCamera() async {
-   
+   final imagePicker = ImagePicker();
+    final pickedFile = await imagePicker.getImage(source: ImageSource.camera);
+
+    setState(() {
+      _image = File(pickedFile.path);
+    });
   }
 
   void _optionSelected(PhotoOptions option) {
@@ -38,9 +53,30 @@ class _AddIncidentsPage extends State<AddIncidentsPage> {
 
   void _saveIncident(BuildContext context) async {
 
+    final userId = FirebaseAuth.instance.currentUser.uid;
+
     // validate the form
     if (_formKey.currentState.validate()) {
-    
+      // upload photo
+      final fileURL = await _addIncidentVM.uploadFile(_image);
+      // print(filePath);
+      if(fileURL.isNotEmpty) {
+        final title = _titleController.text;
+        final description = _descriptionController.text;
+
+        // save incident to Firestore
+        final incidentVS = IncidentViewState(
+          userId: userId,
+          title: title,
+          description: description,
+          photoURL: fileURL,
+          incidentDate: DateTime.now()
+        );
+        final isSaved = await _addIncidentVM.saveIncident(incidentVS);
+        if(isSaved) {
+          Navigator.pop(context, true);
+        }
+      }
     }
 
   }
@@ -51,6 +87,8 @@ class _AddIncidentsPage extends State<AddIncidentsPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    _addIncidentVM = Provider.of<AddIncidentViewModel>(context);
 
     return Scaffold(
         appBar: AppBar(
