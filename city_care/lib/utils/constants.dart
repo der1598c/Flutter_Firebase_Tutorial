@@ -7,5 +7,6 @@ class Constants {
 
   static String WEAK_PASSWORD = "Password is weak"; 
   static String EMAIL_ALREADY_IN_USE = "Email is already in use"; 
+  static String USER_NOT_FOUND = "User is not registered!"; 
 }
 

@@ -3,6 +3,8 @@ import 'package:city_care/pages/add_incidents_page.dart';
 import 'package:city_care/pages/login_page.dart';
 import 'package:city_care/pages/my_incidents_page.dart';
 import 'package:city_care/pages/register_page.dart';
+import 'package:city_care/utils/app_navigator.dart';
+import 'package:city_care/view_models/login_view_model.dart';
 import 'package:city_care/view_models/register_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -27,18 +29,29 @@ class _IncidentListPage extends State<IncidentListPage> {
   }
 
   void _navigateToRegisterPage(BuildContext context) async {
-    Navigator.push(context, MaterialPageRoute(
-      builder: (context) => ChangeNotifierProvider(
-        create: (context) => RegisterViewModel(),
-        child: RegisterPage(),
-      ), fullscreenDialog: true 
-    ));
+    // Navigator.push(context, MaterialPageRoute(
+    //   builder: (context) => ChangeNotifierProvider(
+    //     create: (context) => RegisterViewModel(),
+    //     child: RegisterPage(),
+    //   ), fullscreenDialog: true 
+    // ));
+    final bool isRegisted = await AppNavigator.navigateToRegisterPage(context);
+    if(isRegisted) {
+      AppNavigator.navigateToLoginPage(context);
+    }
   }
 
   void _navigateToLoginPage(BuildContext context) async {
-     Navigator.push(context, MaterialPageRoute(
-      builder: (context) => LoginPage(), fullscreenDialog: true 
-    ));
+    //  Navigator.push(context, MaterialPageRoute(
+    //   builder: (context) => ChangeNotifierProvider(
+    //     create: (context) => LoginViewModel(),
+    //     child: LoginPage(),
+    //   ), fullscreenDialog: true 
+    // ));
+    final bool isLoggedIn = await AppNavigator.navigateToLoginPage(context);
+    if(isLoggedIn) {
+      // Goto incidents page.
+    }
   }
 
   void _navigateToMyIncidentsPage(BuildContext context) {

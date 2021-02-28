@@ -1,21 +1,33 @@
 
+import 'package:city_care/view_models/login_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:city_care/utils/constants.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  LoginViewModel _loginVM;
+
   void _login(BuildContext context) async {
     
+    bool isLogged = false;
+
     final email = _emailController.text;
     final password = _passwordController.text;
+
+    isLogged = await _loginVM.login(email, password);
+    if(isLogged) {
+      Navigator.pop(context, true);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     
+    _loginVM = Provider.of<LoginViewModel>(context);
 
     return WillPopScope(
           onWillPop: () {
@@ -63,7 +75,7 @@ class LoginPage extends StatelessWidget {
                             _login(context);
                           },
                           color: Colors.blue),
-                      Text("")
+                      Text(_loginVM.message)
                     ],
                   )),
             ),
