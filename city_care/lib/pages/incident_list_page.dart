@@ -4,6 +4,7 @@ import 'package:city_care/utils/app_navigator.dart';
 import 'package:city_care/view_models/incident_list_view_model.dart';
 import 'package:city_care/widgets/empty_or_no_items.dart';
 import 'package:city_care/widgets/incident_list.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class IncidentListPage extends StatefulWidget {
@@ -21,7 +22,24 @@ class _IncidentListPage extends State<IncidentListPage> {
   @override
   void initState() {
     super.initState();
+    _subscribeToFirebaseAuthChanges();
     _populateAllIncidents();
+  }
+
+  void _subscribeToFirebaseAuthChanges() {
+    FirebaseAuth.instance
+      .authStateChanges()
+      .listen((user) {
+        if(user == null) {
+          setState(() {
+            _isSignedIn = false;
+          });
+        } else {
+          setState(() {
+            _isSignedIn = true;
+          });
+        }
+      });
   }
 
   void _populateAllIncidents() async {
@@ -43,7 +61,8 @@ class _IncidentListPage extends State<IncidentListPage> {
   void _navigateToLoginPage(BuildContext context) async {
     final bool isLoggedIn = await AppNavigator.navigateToLoginPage(context);
     if(isLoggedIn) {
-      // Goto incidents page.
+      // Goto MyIncidents page.
+      AppNavigator.navigateToMyIncidentsPage(context);
     }
   }
 
@@ -69,33 +88,33 @@ class _IncidentListPage extends State<IncidentListPage> {
           children: [
             DrawerHeader(child: Text("Menu")),
             ListTile(title: Text("Home")),
-            ListTile(
+            _isSignedIn ? ListTile(
                     title: Text("My Incidents"),
                     onTap: () async {
                         _navigateToMyIncidentsPage(context);
-                    }),
-                ListTile(
+                    }) : SizedBox.shrink(),
+            _isSignedIn ? ListTile(
                     title: Text("Add Incident"),
                     onTap: () {
                       _navigateToAddIncidentsPage(context);
                     },
-                  ),
-                ListTile(
+                  ) : SizedBox.shrink(),
+            !_isSignedIn ? ListTile(
                     title: Text("Login"),
                     onTap: () {
                       _navigateToLoginPage(context);
-                    }),
-                ListTile(
+                    }) : SizedBox.shrink(),
+            !_isSignedIn ? ListTile(
                     title: Text("Register"),
                     onTap: () {
                       _navigateToRegisterPage(context);
-                    }),
-                ListTile(
+                    }) : SizedBox.shrink(),
+            _isSignedIn ? ListTile(
                     title: Text("Logout"),
                     onTap: () async {
-
-
-                    })
+                      // logout
+                      await FirebaseAuth.instance.signOut();
+                    }) : SizedBox.shrink()
           ],
         )),
         body: Padding(
